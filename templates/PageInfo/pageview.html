@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 {%  load static %}
-=======
-p{%  load static %}
 {% load humanize %}
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
 
 <!doctype html>
 
@@ -69,11 +65,8 @@ p{%  load static %}
     <!--? Config: Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file. -->
 
     <script src="{% static 'assets/js/config.js' %}"></script>
-<<<<<<< HEAD
-=======
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.0/build/global/luxon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0/dist/chartjs-adapter-luxon.min.js"></script>
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
   </head>
 
   <body>
@@ -606,79 +599,6 @@ p{%  load static %}
 <!-- Content wrapper -->
 <div class="content-wrapper">
   <div class="container-xxl flex-grow-1 container-p-y">
-<<<<<<< HEAD
-        <div class="card p-4 mb-4">
-          <div class="row justify-content-between align-items-start mb-4">
-            <div class="col-md-9 d-flex">
-              <div class="position-relative me-3">
-                <a href="{{ page.page_url }}" target="_blank" class="position-absolute" style="top: 0px; left: 90px; z-index: 2;">
-                  <img src="{% static 'assets/img/icons/facebook-icon.webp' %}" alt="Facebook Icon" style="width: 20px; height: 20px;" />
-                </a>
-                <a href="{{ page.page_url }}" target="_blank">
-                  <img class="rounded-circle border border-2 border-light" src="{{ page.profile_pic }}" alt="Page Logo" width="100" height="100" />
-                </a>
-              </div>
-              <div class="ms-2">
-                <h5 class="mb-2">{{ page.page_name }}</h5>
-                <div class="text-muted mb-1"><strong>Page Username:</strong> {{ page.page_username }}</div>
-                <div class="text-muted mb-1"><strong>Page Categories:</strong> {{ page.page_category }}</div>
-              </div>
-            </div>
-            <div class="col-md-3 d-flex justify-content-end">
-              <input type="date" class="form-control" style="max-width: 180px; font-size: 0.9rem;" />
-            </div>
-          </div>
-
-          <div class="row mb-4">
-            <div class="col-md-4 text-muted"><strong>Page Website:</strong> <a href="{{ page.page_website }}">{{ page.page_website }}</a></div>
-            <div class="col-md-4 text-muted"><strong>Page Email:</strong> <a href="mailto:{{ page.page_email }}">{{ page.page_email }}</a></div>
-            <div class="col-md-4 text-muted"><strong>Page Number:</strong> {{ page.page_phone|default:"-" }}</div>
-          </div>
-
-          {% if page.page_description %}
-          <div class="row mb-4 mt-3">
-            <div class="col-md-8">
-              <strong>Page Description:</strong>
-              <div class="text-muted">{{ page.page_description }}</div>
-            </div>
-            {% if page.page_address %}
-            <div class="col-md-4">
-              <strong>Page Address:</strong>
-              <div class="text-muted">{{ page.page_address }}</div>
-            </div>
-            {% endif %}
-          </div>
-          {% endif %}
-<div class="row text-center mt-4">
-  <div class="col">
-    <div class="fw-semibold">
-      {{ page.page_followers_count|default:"-" }}
-    </div>
-    <div class="text-muted small">Page Followers</div>
-  </div>
-
-  <div class="col">
-    <div class="fw-semibold">
-      {{ page.page_likes_count|default:"-" }}
-    </div>
-    <div class="text-muted small">Page Likes</div>
-  </div>
-
-  <div class="col">
-    <div class="fw-semibold">
-      {{ page.page_talking_count|default:"0" }}
-    </div>
-    <div class="text-muted small">Page Talking</div>
-  </div>
-</div>
-
-            <div class="content-backdrop fade"></div>
-          </div>
-          <!-- Content wrapper -->
-  </div>
-</div>
-
-=======
     <div class="card p-4 mb-4">
       <div class="row justify-content-between align-items-start mb-4">
         <div class="col-md-9 d-flex">
@@ -857,6 +777,7 @@ p{%  load static %}
         <div style="max-height: 600px; overflow-y: auto;">
           {% for post in facebook_posts_top10 %}
           <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+            <div style="width: 90px; height: 90px; flex-shrink: 0; position: relative; overflow: hidden;">
             {% if post.post_imgs %}
             <a href="https://www.facebook.com/{{ post.post_id }}" target="_blank">
               <img src="{{ post.post_imgs.0 }}" style="height: 100%; width: 90px; object-fit: cover;" class="rounded-start" />
@@ -864,6 +785,7 @@ p{%  load static %}
             {% else %}
              <div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>
             {% endif %}
+            </div>
             <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center gap-2">
@@ -882,11 +804,12 @@ p{%  load static %}
                 {% if post.reactions %}
                   {% for reaction, count in post.reactions.items %}
                     {% if reaction == "ถูกใจ" %}<span>👍 {{ count }}</span>{% endif %}
+                    {% if reaction == "ห่วงใย" %}<span>🥰 {{ count }}</span>{% endif %}
                     {% if reaction == "รักเลย" %}<span>❤️ {{ count }}</span>{% endif %}
                     {% if reaction == "เศร้า" %}<span>😢 {{ count }}</span>{% endif %}
                     {% if reaction == "โกรธ" %}<span>😡 {{ count }}</span>{% endif %}
                     {% if reaction == "ว้าว" %}<span>😮 {{ count }}</span>{% endif %}
-                    {% if reaction == "ขำ" or reaction == "ฮา" %}<span>😂 {{ count }}</span>{% endif %}
+                    {% if reaction == "ฮ่าๆ" or reaction == "ฮา" %}<span>😂 {{ count }}</span>{% endif %}
                   {% endfor %}
                 {% endif %}
                 <span>💬 {{ post.comment_count|default:0 }}</span>
@@ -909,6 +832,7 @@ p{%  load static %}
         <div style="max-height: 600px; overflow-y: auto;">
           {% for post in facebook_posts_flop %}
           <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+            <div style="width: 90px; height: 90px; flex-shrink: 0; position: relative; overflow: hidden;">
             {% if post.post_imgs %}
             <a href="https://www.facebook.com/{{ post.post_id }}" target="_blank">
               <img src="{{ post.post_imgs.0 }}" style="height: 100%; width: 90px; object-fit: cover;" class="rounded-start" />
@@ -916,7 +840,8 @@ p{%  load static %}
             {% else %}
              <div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>
             {% endif %}
-            <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+            </div>
+            <div class="flex-grow-1 d-flex flex-column justify-content-between px-3 py-2" style="min-width: 0; overflow: hidden;">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="d-flex align-items-center gap-2">
                   {% if page.profile_pic %}
@@ -934,11 +859,12 @@ p{%  load static %}
                 {% if post.reactions %}
                   {% for reaction, count in post.reactions.items %}
                     {% if reaction == "ถูกใจ" %}<span>👍 {{ count }}</span>{% endif %}
+                    {% if reaction == "ห่วงใย" %}<span>🥰 {{ count }}</span>{% endif %}
                     {% if reaction == "รักเลย" %}<span>❤️ {{ count }}</span>{% endif %}
                     {% if reaction == "เศร้า" %}<span>😢 {{ count }}</span>{% endif %}
                     {% if reaction == "โกรธ" %}<span>😡 {{ count }}</span>{% endif %}
                     {% if reaction == "ว้าว" %}<span>😮 {{ count }}</span>{% endif %}
-                    {% if reaction == "ขำ" or reaction == "ฮา" %}<span>😂 {{ count }}</span>{% endif %}
+                    {% if reaction == "ขำ" or reaction == "ฮ่าๆ" %}<span>😂 {{ count }}</span>{% endif %}
                   {% endfor %}
                 {% endif %}
                 <span>💬 {{ post.comment_count|default:0 }}</span>
@@ -1225,36 +1151,35 @@ new Chart(ctx, {
 <br>
 <!-- 📊 Number of posts by days & Best Times To Post -->
 <div class="row">
-  <!-- 📊 Number of posts by days -->
-  <div class="col-md-6">
-    <div class="card shadow-sm rounded p-3 mb-4" style="aspect-ratio: 4 / 2;">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0">Number of posts by days</h6>
-      </div>
-      <div class="position-relative" style="width: 100%; height: 100%;">
-        <canvas id="postsByDayChart"></canvas>
-      </div>
+<!-- 📊 Number of posts by days -->
+<div class="col-md-6">
+  <div class="card shadow-sm rounded p-3 mb-4 w-100" style="aspect-ratio: 4 / 2;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="mb-0">Number of posts by days</h6>
+    </div>
+    <div class="position-relative" style="width: 100%; height: 100%;">
+      <canvas id="postsByDayChart" style="width: 100%; height: 100%;"></canvas>
     </div>
   </div>
+</div>
 
-  <!-- 🕒 Best Times To Post -->
-  <div class="col-md-6">
-    <div class="card shadow-sm rounded p-3 mb-4" style="aspect-ratio: 4 / 2;">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0">Best Times To Post</h6>
+
+<!-- 🧠 Popup Modal -->
+<div class="modal fade" id="popupModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Posts in Selected By Day</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="position-relative" style="width: 100%; height: 100%;">
-        <canvas id="bestTimesChart"></canvas>
-      </div>
+      <div class="modal-body" id="popupContent"></div>
     </div>
   </div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  // 🎨 Bar Chart: Number of posts by days
-  const dayCtx = document.getElementById("postsByDayChart").getContext("2d");
-  new Chart(dayCtx, {
+  const postsByDayChart = new Chart(document.getElementById("postsByDayChart").getContext("2d"), {
     type: "bar",
     data: {
       labels: {{ bar_day_labels|safe }},
@@ -1263,12 +1188,52 @@ document.addEventListener("DOMContentLoaded", function () {
         data: {{ bar_day_values|safe }},
         backgroundColor: {{ bar_day_colors|safe }},
         borderRadius: 6,
-        barThickness: 28,
-      }],
+        barThickness: 28
+      }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      onClick: function (e, elements) {
+        if (elements.length > 0) {
+          const dayIndex = elements[0].index;
+          const postsMap = JSON.parse('{{ posts_by_day_json|escapejs }}');
+          const posts = postsMap[dayIndex] || [];
+
+          document.querySelector('#popupModal .modal-title').innerText = 'Posts in Selected By Day';
+
+          const html = posts.map(p => `
+            <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+              <div style="width: 90px; height: 90px; flex-shrink: 0; overflow: hidden;">
+                ${p.post_imgs?.[0] ? `<a href="https://www.facebook.com/${p.post_id}" target="_blank"><img src="${p.post_imgs[0]}" class="rounded-start" style="height: 100%; width: 90px; object-fit: cover;" /></a>` : `<div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>`}
+              </div>
+              <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="d-flex align-items-center gap-2">
+                    ${p.profile_pic ? `<img src="${p.profile_pic}" class="rounded-circle" style="width: 16px; height: 16px;">` : ''}
+                    <i class="bi bi-facebook text-primary"></i>
+                    <strong class="text-truncate">${p.page_name}</strong>
+                  </div>
+                  <div class="text-muted small" style="font-size: 0.65rem;">${p.post_timestamp}</div>
+                </div>
+                <div class="mt-1 text-dark" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis;font-size: 0.8rem;">
+                  ${p.post_content}
+                </div>
+                <div class="d-flex gap-2 text-muted align-items-center" style="font-size: 0.7rem;">
+                  ${Object.entries(p.reactions || {}).map(([r, c]) => {
+                    const emoji = { 'ถูกใจ': '👍', 'รักเลย': '❤️', 'เศร้า': '😢', 'โกรธ': '😡', 'ว้าว': '😮', 'ฮ่าๆ': '😂', 'ห่วงใย': '🥰' }[r] || '';
+                    return `<span>${emoji} ${c}</span>`;
+                  }).join('')}
+                  <span>💬 ${p.comment_count || 0}</span>
+                  <span>↪ ${p.share_count || 0}</span>
+                  <span class="ms-auto fw-semibold text-dark">🔥 ${p.total_engagement}</span>
+                </div>
+              </div>
+            </div>
+          `).join('');
+
+          document.getElementById('popupContent').innerHTML = html;
+          new bootstrap.Modal(document.getElementById('popupModal')).show();
+        }
+      },
       scales: {
         y: {
           beginAtZero: true,
@@ -1289,73 +1254,145 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           }
         }
-      }
+      },
+      responsive: true,
+      maintainAspectRatio: false
     }
   });
+});
+</script>
 
-  // 🟢 Bubble Chart: Best Times To Post
-  const timeCtx = document.getElementById("bestTimesChart").getContext("2d");
-  new Chart(timeCtx, {
+
+  <!-- 🕒 Best Times To Post -->
+  <div class="col-md-6">
+    <div class="card shadow-sm rounded p-3 mb-4" style="aspect-ratio: 4 / 2;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0">Best Times To Post</h6>
+      </div>
+      <div class="position-relative" style="width: 100%; height: 100%;">
+        <canvas id="bestTimesChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- 🧊 Popup Modal -->
+<div class="modal fade" id="bestTimesModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content rounded">
+      <div class="modal-header">
+        <h5 class="modal-title fw-semibold">Posts in Selected Time Slot</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="bestTimesModalBody">
+        <!-- Posts will be injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ✅ Bubble Chart: Best Times To Post -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function getColorByPostCount(count) {
+    const max = 30;
+    const ratio = Math.min(count / max, 1);
+    const hue = (1 - ratio) * 240;
+    return `hsl(${hue}, 70%, 60%)`;
+  }
+
+  const bubbles = JSON.parse('{{ bubble_data|escapejs }}');
+  const postMap = JSON.parse('{{ posts_grouped_json|escapejs }}');
+
+  const ctx = document.getElementById("bestTimesChart").getContext("2d");
+  const chart = new Chart(ctx, {
     type: 'bubble',
     data: {
-      datasets: JSON.parse('{{ bubble_data|escapejs }}').map(point => ({
-        label: point.label,
+      datasets: bubbles.map(b => ({
         data: [{
-          x: point.x,
-          y: point.y,
-          r: point.r,
-          customTooltip: {
-            line1: point.label,
-            line2: `${point.count} Number of posts`,
-            line3: `${point.likes} Likes, ${point.comments} Comments, ${point.shares} Shares`
-          }
+          x: b.x, y: b.y, r: b.r,
+          count: b.count,
+          likes: b.likes,
+          comments: b.comments,
+          shares: b.shares,
+          key: b.key,
+          label: b.tooltip_label
         }],
-        backgroundColor: point.color,
-        hoverBackgroundColor: point.color
+        backgroundColor: getColorByPostCount(b.count),
+        hoverBackgroundColor: getColorByPostCount(b.count)
       }))
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        x: {
-          min: -0.5,
-          max: 6.5,
-          ticks: {
-            callback: function (value) {
-              return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][value];
-            },
-            color: '#485b7d',
-            font: { size: 12, family: "Inter" }
-          },
-          grid: { display: false }
-        },
-        y: {
-          min: 0,
-          max: 24,
-          ticks: {
-            stepSize: 2,
-            color: '#485b7d',
-            font: { size: 12, family: "Inter" }
-          },
-          grid: { color: "#e0e0e0" }
-        }
-      },
       plugins: {
-        legend: { display: false },
         tooltip: {
           callbacks: {
-            label: function(context) {
-              const t = context.raw.customTooltip;
-              return [t.line1, t.line2, t.line3];
-            }
+            label: ctx => [
+              ctx.raw.label,
+              `${ctx.raw.count} Number of posts`,
+              `${ctx.raw.likes} Likes, ${ctx.raw.comments} Comments, ${ctx.raw.shares} Shares`
+            ]
           }
+        },
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          min: -0.5, max: 6.5,
+          ticks: { callback: v => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][v] }
+        },
+        y: { min: 0, max: 24, ticks: { stepSize: 2 } }
+      },
+      onClick: (e, elements) => {
+        if (elements.length) {
+          const key = chart.data.datasets[elements[0].datasetIndex].data[0].key;
+          const posts = postMap[key] || [];
+
+          document.querySelector('#popupModal .modal-title').innerText = 'Posts in Selected Time Slot';
+
+          const html = posts.map(p => `
+            <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+              <div style="width: 90px; height: 90px; flex-shrink: 0; overflow: hidden;">
+                ${p.post_imgs?.[0] ? `<a href="https://www.facebook.com/${p.post_id}" target="_blank">
+                  <img src="${p.post_imgs[0]}" style="height: 100%; width: 90px; object-fit: cover;" class="rounded-start" /></a>` :
+                  `<div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>`}
+              </div>
+              <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="d-flex align-items-center gap-2">
+                    ${p.page?.profile_pic ? `<img src="${p.page.profile_pic}" class="rounded-circle" style="width: 16px; height: 16px;">` : ''}
+                    <i class="bi bi-facebook text-primary"></i>
+                    <strong class="text-truncate">${p.page?.page_name || 'Unnamed'}</strong>
+                  </div>
+                  <div class="text-muted small" style="font-size: 0.65rem;">${p.post_timestamp}</div>
+                </div>
+                <div class="mt-1 text-dark" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis;font-size: 0.8rem;">
+                  ${p.post_content || ''}
+                </div>
+                <div class="d-flex gap-2 text-muted align-items-center" style="font-size: 0.7rem;">
+                  ${Object.entries(p.reactions || {}).map(([reaction, count]) => {
+                    const emoji = { 'ถูกใจ':'👍', 'รักเลย':'❤️', 'เศร้า':'😢', 'โกรธ':'😡', 'ว้าว':'😮', 'ฮ่าๆ':'😂', 'ห่วงใย':'🥰' }[reaction] || '';
+                    return `<span>${emoji} ${count}</span>`;
+                  }).join('')}
+                  <span>💬 ${p.comment_count || 0}</span>
+                  <span>↪ ${p.share_count || 0}</span>
+                  <span class="ms-auto fw-semibold text-dark">🔥 ${p.total_engagement || 0}</span>
+                </div>
+              </div>
+            </div>
+          `).join('');
+
+          document.getElementById('popupContent').innerHTML = html;
+          new bootstrap.Modal(document.getElementById('popupModal')).show();
         }
       }
     }
   });
 });
 </script>
+
 
 <br>
 
@@ -1456,7 +1493,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           <br>
 
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
             <!-- Footer -->
 <footer class="content-footer footer bg-footer-theme mt-auto py-4 border-top">
   <div class="container-xxl d-flex flex-column flex-md-row align-items-center justify-content-between">

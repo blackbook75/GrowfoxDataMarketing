@@ -15,11 +15,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-<<<<<<< HEAD
-    <title>GrowFox</title>
-=======
     <title>Demo: Academy - Dashboard - App | Materialize - Bootstrap Dashboard PRO</title>
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
 
     <meta name="description" content="" />
 
@@ -145,11 +141,7 @@
                 <div data-i18n="Page">Page</div>
               </a>
               <ul class="menu-sub">
-<<<<<<< HEAD
-                <li class="menu-item">
-=======
                 <li class="menu-item active">
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
                   <a href="app-academy-dashboard.html" class="menu-link">
                     <div data-i18n="Overview">Overview</div>
                   </a>
@@ -615,35 +607,11 @@
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="card p-4 mt-4">
     <!-- หัวข้อและปุ่ม -->
-<<<<<<< HEAD
-    <div class="d-flex justify-content-between align-items-center mb-3" style="background-color: #F97316; border-radius: 8px;">
-      <div>
-        <h3 style="font-weight: 800; font-size: 24px; margin: 10px; color: #FFFFFF;">Select a Group to View Dashboard</h3>
-      </div>
-      <div style="margin: 10px;" >
-        <a href="{% url 'create_group' %}" class="btn" style="
-          background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
-          color: #FFFFFF;
-          border: none;
-          border-radius: 8px;
-          padding: 10px 16px;
-          cursor: pointer;
-          font-weight: 500;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          transition: all 0.3s ease;
-        "
-        onmouseover="this.style.background='linear-gradient(90deg, #fb923c 0%, #f97316 100%)'; this.style.transform='translateY(-2px)';"
-        onmouseout="this.style.background='linear-gradient(90deg, #f97316 0%, #fb923c 100%)'; this.style.transform='translateY(0)';">+ Add Group For Page
-        </a>
-      </div>
-
-=======
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>
   <h3 style="font-weight: 500; font-size: 24px;">Select a Group to View Dashboard</h3>
       </div>
   <a href="{% url 'create_group' %}" class="btn" style="background-color: #FF6801; color: white; border-radius: 8px; padding: 8px 16px;">+ Add Group For Page</a>
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
 
     <!-- 🔥 Modal Add Group ใส่ตรงนี้ -->
     <div class="modal fade" id="addGroupModal" tabindex="-1" aria-labelledby="addGroupLabel" aria-hidden="true">
@@ -675,32 +643,19 @@
     </div>
       <div class="table-responsive">
         <table class="table table-hover" style="border: 1px solid #E0E0E0; border-radius: 8px; overflow: hidden;">
-<<<<<<< HEAD
-          <thead style="background-color: #FF6801; color: #424242; font-weight: 500; font-size: 15px;">
-            <tr>
-              <th style="padding: 16px; background-color: #f1a044; color: #FFFFFF; font-weight: 500; font-size: 1rem">Group Name</th>
-              <th style="padding: 16px; background-color: #f1a044; color: #FFFFFF; font-weight: 500; font-size: 1rem">Pages</th>
-=======
           <thead style="background-color: #F5F5F5; color: #424242; font-weight: 500; font-size: 15px;">
             <tr>
               <th style="padding: 16px;">Group Name</th>
               <th style="padding: 16px;">Pages</th>
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
             </tr>
           </thead>
           <tbody>
             {% for group in page_groups %}
             <tr style="border-bottom: 1px solid #E0E0E0;">
               <td style="padding: 16px; font-size: 15px;">
-<<<<<<< HEAD
-                <a href="{% url 'group_detail' group.pk %}" class="group-link">
-                {{ group.group_name }}
-              </a>
-=======
                 <a href="{% url 'group_detail' group.pk %}" style="text-decoration: none; color: inherit;">
                   {{ group.group_name }}
                 </a>
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
               </td>
               <td style="padding: 16px; font-size: 15px;">{{ group.pages.count }} Pages in this Group</td>
             </tr>
