@@ -12,6 +12,7 @@ from .lm8_page_info import get_lemon8_info  # ✅ เพิ่มบรรทั
 from .yt_page_info import get_youtube_info
 from .fb_post_info import run_fb_post_scraper  # ✅ ถูก: ใช้ชื่อไฟล์ที่แท้จริง
 from collections import Counter
+from collections import defaultdict
 import calendar
 import re
 import os
@@ -290,12 +291,156 @@ def create_group(request):
     return render(request, 'PageInfo/create_group.html', {'form': form})
 
 def group_detail(request, group_id):
-    group = PageGroup.objects.get(id=group_id)
-    pages = group.pages.all()  # ต้องมี related_name='pages'
+    group = get_object_or_404(PageGroup, id=group_id)
+    pages = group.pages.all().order_by('-page_followers_count')
+    posts = FacebookPost.objects.filter(page__in=pages)
+
+    colors = ['#e20414', '#2e3d93', '#fbd305', '#355e73', '#0c733c', '#c94087']
+
+    # 📊 Followers Chart & Interaction Pie Chart
+    chart_data = []
+    interaction_data = []
+    total_interactions = sum(int(str(p.page_talking_count or '0').replace(',', '')) for p in pages)
+
+    for i, page in enumerate(pages):
+        interaction = int(str(page.page_talking_count or '0').replace(',', ''))
+        interaction_data.append({
+            'id': page.id,
+            'name': page.page_name or page.page_username or 'Unnamed',
+            'interactions': interaction,
+            'percent': round((interaction / total_interactions * 100) if total_interactions else 0, 1),
+            'color': colors[i % len(colors)]
+        })
+        chart_data.append({
+            'id': page.id,
+            'name': page.page_name or page.page_username or 'Unnamed',
+            'followers': page.page_followers_count or 0,
+            'profile_pic': page.profile_pic or '',
+            'platform': page.platform or 'facebook',
+            'color': colors[i % len(colors)]
+        })
+
+    # 🔁 followers_posts_map เพื่อ popup โพสต์ของแต่ละเพจ
+    followers_posts_map = defaultdict(list)
+    for post in posts:
+        if not post.page:
+            continue
+        followers_posts_map[str(post.page.id)].append({
+            'post_id': post.post_id,
+            'post_content': post.post_content,
+            'post_imgs': post.post_imgs,
+            'post_timestamp': post.post_timestamp_dt.strftime('%Y-%m-%d %H:%M') if post.post_timestamp_dt else '',
+            'reactions': post.reactions or {},
+            'comment_count': post.comment_count,
+            'share_count': post.share_count,
+            'total_engagement': (
+                    (sum(post.reactions.values()) if isinstance(post.reactions, dict) else 0) +
+                    (post.comment_count or 0) +
+                    (post.share_count or 0)
+            ),
+            'page': {
+                'page_name': post.page.page_name,
+                'profile_pic': post.page.profile_pic,
+            }
+        })
+
+    # 📅 Number of posts by weekday (Bar Chart)
+    day_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    day_counts = Counter(post.post_timestamp_dt.weekday() for post in posts if post.post_timestamp_dt)
+    bar_day_labels = day_labels
+    bar_day_values = [day_counts.get(i, 0) for i in range(7)]
+    bar_day_colors = [colors[i % len(colors)] for i in range(7)]
+    posts_grouped_by_day = defaultdict(list)
+    for post in posts:
+        if post.post_timestamp_dt:
+            weekday = post.post_timestamp_dt.weekday()
+            posts_grouped_by_day[str(weekday)].append({
+                'post_id': post.post_id,
+                'post_content': post.post_content,
+                'post_imgs': post.post_imgs,
+                'post_timestamp': post.post_timestamp_dt.strftime('%Y-%m-%d %H:%M'),
+                'reactions': post.reactions or {},
+                'comment_count': post.comment_count,
+                'share_count': post.share_count,
+                'total_engagement': (sum(post.reactions.values()) if isinstance(post.reactions,
+                                                                                dict) else 0) + post.comment_count + post.share_count,
+                'page_name': post.page.page_name if post.page else '',
+                'profile_pic': post.page.profile_pic if post.page else '',
+            })
+
+    # 🕒 Best Times To Post (Bubble Chart)
+    bubble_grouped = defaultdict(list)
+    posts_grouped_by_time = defaultdict(list)
+
+    for post in posts:
+        if not post.post_timestamp_dt:
+            continue
+
+        weekday = post.post_timestamp_dt.weekday()
+        hour = post.post_timestamp_dt.hour
+        hour_slot = (hour // 2) * 2
+        key = f"{weekday}_{hour_slot}"
+
+        bubble_grouped[key].append(post)
+
+    bubble_data = []
+    for key, grouped_posts in bubble_grouped.items():
+        weekday, hour_slot = map(int, key.split('_'))
+        count = len(grouped_posts)
+        total_likes = sum(p.reactions.get('ถูกใจ', 0) if isinstance(p.reactions, dict) else 0 for p in grouped_posts)
+        total_comments = sum(p.comment_count or 0 for p in grouped_posts)
+        total_shares = sum(p.share_count or 0 for p in grouped_posts)
+
+        bubble_data.append({
+            'x': weekday,
+            'y': hour_slot,
+            'r': max(5, min(20, int(count ** 1.1))),
+            'count': count,
+            'likes': total_likes,
+            'comments': total_comments,
+            'shares': total_shares,
+            'tooltip_label': f"{day_labels[weekday]} {hour_slot:02d}:00 - {hour_slot + 2:02d}:00",
+            # Ensure tooltip label
+            'key': key  # Ensure the key is present for JS
+        })
+
+        for p in grouped_posts:
+            total_engagement = (
+                (sum(p.reactions.values()) if isinstance(p.reactions, dict) else 0) +
+                (p.comment_count or 0) +
+                (p.share_count or 0)
+            )
+            posts_grouped_by_time[f"{weekday}_{hour_slot}"].append({
+                'post_id': p.post_id,
+                'post_content': p.post_content,
+                'post_imgs': p.post_imgs,
+                'post_timestamp': p.post_timestamp_dt.strftime('%Y-%m-%d %H:%M'),
+                'reactions': p.reactions or {},
+                'comment_count': p.comment_count,
+                'share_count': p.share_count,
+                'total_engagement': (sum(p.reactions.values()) if isinstance(p.reactions, dict) else 0) + (
+                            p.comment_count or 0) + (p.share_count or 0),
+                'page': {
+                    'page_name': p.page.page_name if p.page else '',
+                    'profile_pic': p.page.profile_pic if p.page else ''
+                }
+            })
+
     return render(request, 'PageInfo/group_detail.html', {
         'group': group,
-        'pages': pages
+        'pages': pages,
+        'chart_data_json': json.dumps(chart_data),
+        'interaction_data_json': json.dumps(interaction_data),
+        'bar_day_labels': json.dumps(bar_day_labels),
+        'bar_day_values': json.dumps(bar_day_values),
+        'bar_day_colors': json.dumps(bar_day_colors),
+        'bubble_data': json.dumps(bubble_data),
+        'posts_grouped_json': json.dumps(posts_grouped_by_time),
+        'posts_by_day_json': json.dumps(posts_grouped_by_day),
+        'followers_posts_map': json.dumps(followers_posts_map),
     })
+
+
 
 
 def index(request):
@@ -321,8 +466,22 @@ def pageview(request, page_id):
 
     if page.platform == "facebook":
         facebook_posts = FacebookPost.objects.filter(page=page).order_by('-post_timestamp_dt')
+        posts_by_day_json = defaultdict(list)
+        posts_grouped_by_time = defaultdict(list)
+        heatmap_counter = {}  # ✅ สำหรับรวมข้อมูล bubble chart
+        best_times_bubble = []  # ✅ สำหรับแสดงผล chart
+        hour_bins = list(range(0, 24, 2))  # 0,2,4,...22
 
         for post in facebook_posts:
+            if not post.post_timestamp_dt:
+                continue
+
+            weekday_index = post.post_timestamp_dt.weekday()
+            hour = post.post_timestamp_dt.hour
+            hour_slot = (hour // 2) * 2  # เช่น 13 => 12
+            key = f"{weekday_index}_{hour_slot}"
+
+            # ✅ แปลง reactions
             reactions = post.reactions or {}
             if isinstance(reactions, str):
                 try:
@@ -330,6 +489,7 @@ def pageview(request, page_id):
                 except json.JSONDecodeError:
                     reactions = {}
 
+            # ✅ คำนวณ metrics
             post.like_count = reactions.get("ถูกใจ", 0)
             post.comment_count = post.comment_count or 0
             post.share_count = post.share_count or 0
@@ -339,21 +499,49 @@ def pageview(request, page_id):
             post.impressions = getattr(post, 'impressions', None)
 
             if post.reach and isinstance(post.reach, (int, float)) and post.reach > 0:
-                rate = post.total_engagement / post.reach
-                post.interaction_rate = f"{rate:.4%}"
+                post.interaction_rate = f"{post.total_engagement / post.reach:.4%}"
             else:
                 post.interaction_rate = "0%"
                 post.reach = "-"
 
             if post.impressions and isinstance(post.impressions, (int, float)) and post.impressions > 0:
-                ratio = post.total_engagement / post.impressions
-                post.impression_per_view = f"{ratio:.4f}"
+                post.impression_per_view = f"{post.total_engagement / post.impressions:.4f}"
             else:
                 post.impression_per_view = "-"
 
             post.negative_sentiment_share = "0%"
 
-            # ✅ เตรียมข้อมูลสำหรับ Engagement Scatter Chart ใน loop เดียวกัน
+            # ✅ เพิ่มข้อมูลเข้า posts_by_day_json
+            posts_by_day_json[str(weekday_index)].append({
+                "post_id": post.post_id,
+                "post_imgs": post.post_imgs,
+                "post_content": post.post_content,
+                "post_timestamp": post.post_timestamp_text,
+                "profile_pic": post.page.profile_pic if post.page else None,
+                "page_name": post.page.page_name if post.page else None,
+                "comment_count": post.comment_count,
+                "share_count": post.share_count,
+                "total_engagement": post.total_engagement,
+                "reactions": reactions,
+            })
+
+            # ✅ เพิ่มข้อมูลเข้า posts_grouped_by_time สำหรับ popup bubble chart
+            posts_grouped_by_time[key].append({
+                "post_id": post.post_id,
+                "post_content": post.post_content,
+                "post_imgs": post.post_imgs,
+                "post_timestamp": post.post_timestamp_text,
+                "reactions": reactions,
+                "comment_count": post.comment_count,
+                "share_count": post.share_count,
+                "total_engagement": post.total_engagement,
+                "page": {
+                    "page_name": post.page.page_name if post.page else '',
+                    "profile_pic": post.page.profile_pic if post.page else ''
+                }
+            })
+
+            # ✅ เพิ่มข้อมูลเข้า scatter chart
             scatter_data.append({
                 "x": post.post_timestamp_dt.strftime("%Y-%m-%d"),
                 "y": post.total_engagement,
@@ -361,6 +549,51 @@ def pageview(request, page_id):
                 "page_name": page.page_name,
                 "timestamp_text": post.post_timestamp_text,
                 "img": post.post_imgs[0] if post.post_imgs else None,
+            })
+
+            # ✅ รวมข้อมูล bubble chart
+            if key not in heatmap_counter:
+                heatmap_counter[key] = {
+                    "count": 0,
+                    "likes": 0,
+                    "comments": 0,
+                    "shares": 0,
+                }
+
+            heatmap_counter[key]["count"] += 1
+            heatmap_counter[key]["likes"] += reactions.get("ถูกใจ", 0)
+            heatmap_counter[key]["comments"] += post.comment_count
+            heatmap_counter[key]["shares"] += post.share_count
+
+        # ✅ ฟังก์ชันกำหนดสีแยกตามจำนวนโพสต์
+        def get_color_by_count(count):
+            color_map = {
+                1: "#cdb4db",
+                2: "#c5f6f7",
+                3: "#f9c6c9",
+                4: "#ffd6a5",
+                5: "#FF6962",
+            }
+            return color_map.get(count, "#9E9E9E")
+
+        # ✅ แปลง heatmap_counter => best_times_bubble
+        day_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        day_labels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+        for key, val in heatmap_counter.items():
+            weekday, hour = map(int, key.split("_"))
+            label = f"{day_order[weekday]} {hour:02d}:00 - {hour + 2:02d}:00"
+            best_times_bubble.append({
+                "x": weekday,
+                "y": hour,
+                "r": max(4, min(20, val["count"] * 3)),
+                "count": val["count"],
+                "likes": val["likes"],
+                "comments": val["comments"],
+                "shares": val["shares"],
+                "label": label,
+                "key": key,
+                "color": get_color_by_count(val["count"]),
             })
 
         facebook_posts_top10 = sorted(facebook_posts, key=lambda p: p.total_engagement, reverse=True)[:10]
@@ -469,7 +702,9 @@ def pageview(request, page_id):
             return color_map.get(count, "#9E9E9E")  # สีเทาสำหรับ fallback
 
         for (day, hour), val in heatmap_counter.items():
-            color = get_color_by_count(int(val["count"]))
+            key_str = f"{day_order.index(day)}_{hour}"  # ✅ ให้ตรงกับ key ที่ใช้ใน posts_grouped_by_time
+
+            tooltip_label = f"{day} {hour:02d}:00 - {hour + 2:02d}:00"
             bubble = {
                 "x": day_order.index(day),
                 "y": hour,
@@ -478,14 +713,17 @@ def pageview(request, page_id):
                 "likes": val.get("likes", 0),
                 "comments": val.get("comments", 0),
                 "shares": val.get("shares", 0),
-                "label": f"{day} {hour}:00 - {hour + 2}:00",
-                "color": get_color_by_count(val["count"]),  # ✅ ใส่ตรงนี้
+                "label": tooltip_label,  # ✅ เดิม
+                "tooltip_label": tooltip_label,  # ✅ เพิ่มสำหรับ group_detail style
+                "key": key_str,
+                "color": get_color_by_count(val["count"]),
                 "customTooltip": {
-                    "line1": f"{day} {hour}:00 - {hour + 2}:00",
+                    "line1": tooltip_label,
                     "line2": f"{val['count']} Number of posts",
                     "line3": f"{val.get('likes', 0)} Likes, {val.get('comments', 0)} Comments, {val.get('shares', 0)} Shares"
                 }
             }
+
             best_times_bubble.append(bubble)
 
     return render(request, 'PageInfo/pageview.html', {
@@ -502,4 +740,8 @@ def pageview(request, page_id):
         'bubble_data': json.dumps(best_times_bubble),
         'bar_day_colors': json.dumps(bar_day_colors),
         'top_hashtags': top_hashtags,
+        'posts_by_day_json': json.dumps(posts_by_day_json),
+        'posts_grouped_json': json.dumps(posts_grouped_by_time),
     })
+
+

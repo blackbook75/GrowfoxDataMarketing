@@ -37,10 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-<<<<<<< HEAD
-=======
     'django.contrib.humanize',
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
     'PageInfo.apps.PageinfoConfig',
 ]
 

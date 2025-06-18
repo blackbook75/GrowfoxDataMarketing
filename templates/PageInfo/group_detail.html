@@ -1,8 +1,5 @@
 {%  load static %}
-<<<<<<< HEAD
-=======
 {% load humanize %}
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
 
 <!doctype html>
 
@@ -19,12 +16,12 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Demo: Academy - Dashboard - App | Materialize - Bootstrap Dashboard PRO</title>
+     <title>Growfox - Marketing Data Center</title>
 
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/favicon.ico' %}" />
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/gavicon.jpg' %}" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -61,6 +58,7 @@
     <!-- Helpers -->
     <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <script src="{% static 'js/materialize.min.js' %}"></script>
 
     <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js. -->
     <script src="{% static 'assets/vendor/js/template-customizer.js' %}"></script>
@@ -68,87 +66,16 @@
     <!--? Config: Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file. -->
 
     <script src="{% static 'assets/js/config.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.0/dist/chartjs-adapter-luxon.min.js"></script>
   </head>
 
   <body>
+
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
         <!-- Menu -->
-{%  load static %}
-
-<!doctype html>
-
-<html
-  lang="en"
-  class="layout-navbar-fixed layout-menu-fixed layout-compact"
-  dir="ltr"
-  data-skin="default"
-  data-bs-theme="light"
-  data-assets-path="{% static 'assets' %}">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Demo: Academy - Dashboard - App | Materialize - Bootstrap Dashboard PRO</title>
-
-    <meta name="description" content="" />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'assets/img/favicon/favicon.ico' %}" />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&ampdisplay=swap"
-      rel="stylesheet" />
-
-    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/iconify-icons.css' %}" />
-
-    <!-- Core CSS -->
-    <!-- build:css assets/vendor/css/theme.css -->
-
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/node-waves/node-waves.css' %}" />
-
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/pickr/pickr-themes.css' %}" />
-
-    <link rel="stylesheet" href="{% static 'assets/vendor/css/core.css' %}" />
-    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
-
-    <!-- Vendors CSS -->
-
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
-
-    <!-- endbuild -->
-
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css' %}" />
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css' %}" />
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css' %}" />
-    <link rel="stylesheet" href="{% static 'assets/vendor/libs/apex-charts/apex-charts.css' %}" />
-
-    <!-- Page CSS -->
-
-    <!-- Helpers -->
-    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-
-    <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js. -->
-    <script src="{% static 'assets/vendor/js/template-customizer.js' %}"></script>
-
-    <!--? Config: Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file. -->
-
-    <script src="{% static 'assets/js/config.js' %}"></script>
-  </head>
-
-  <body>
-    <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar">
-      <div class="layout-container">
-        <!-- Menu -->
-
 <aside id="layout-menu" class="layout-menu menu-vertical menu">
   <div class="app-brand demo logo-wrapper">
     <!-- ✅ แก้ href จาก index.html เป็น {% url 'index' %} -->
@@ -190,9 +117,10 @@
   </ul>
 </li>
 
-            <!-- Add Group For Page Button -->
+
+<!-- Add Group For Page Button (ลิงก์ไปยัง create_group view) -->
 <li class="menu-item">
-<a href="{% url 'create_group' %}" class="menu-link custom-add-group">
+  <a href="{% url 'create_group' %}" class="menu-link custom-add-group">
     <i class="menu-icon tf-icons ri ri-add-line"></i>
     <div data-i18n="Add Group For Page">Add Group For Page</div>
   </a>
@@ -670,7 +598,6 @@
           </nav>
 
           <!-- / Navbar -->
-
 <!-- Content wrapper -->
 <div class="content-wrapper">
   <div class="container-xxl flex-grow-1 container-p-y">
@@ -694,46 +621,12 @@
 
     <!-- 🔹 ตาราง All Page Metric Overview (ตามที่ทำไปแล้ว) -->
     {% if pages %}
-    <div class="card shadow-sm rounded">
+    <div class="card shadow-sm rounded mb-4 w-100">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">All Page Metric Overview</h5>
         <input type="text" placeholder="Search Page" class="form-control w-25">
       </div>
       <div class="table-responsive">
-<<<<<<< HEAD
-        <table class="table table-striped align-middle text-center">
-          <thead class="table-light">
-            <tr>
-              <th scope="col">Page</th>
-              <th scope="col">Followers</th>
-              <th scope="col">Likes</th>
-              <th scope="col">Talking</th>
-              <th scope="col">Website</th>
-              <th scope="col">Email</th>
-              <th scope="col">Phone</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for page in pages %}
-            <tr>
-              <td class="d-flex align-items-center">
-                <img src="{{ page.profile_pic }}" alt="{{ page.page_name }}" width="40" height="40" class="rounded-circle me-2">
-                <div class="text-start">
-                      <a href="{% url 'pageview' page.id %}" class="fw-semibold">{{ page.page_name }}</a>
-                <br>
-                  <a href="{{ page.page_url }}" target="_blank" class="small text-muted">View Page</a>
-                </div>
-              </td>
-              <td title="{{ page.page_followers_count|default:'-' }}">{{ page.page_followers|default:"-" }}</td>
-              <td title="{{ page.page_likes_count|default:'-' }}">{{ page.page_likes|default:"-" }}</td>
-              <td>{{ page.page_talking_count|default:"0" }}</td>
-              <td><a href="{{ page.page_website }}" target="_blank">{{ page.page_website|default:"-" }}</a></td>
-              <td><a href="mailto:{{ page.page_email }}">{{ page.page_email|default:"-" }}</a></td>
-              <td>{{ page.page_phone|default:"-" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-=======
   <table class="table table-striped align-middle text-center">
     <thead class="table-light">
       <tr>
@@ -837,7 +730,6 @@
 {% endif %}</tr>
 {% endfor %}
 </tbody>
->>>>>>> bee78e8f8b34bfc8e75e08ac77a3a7df56667643
         </table>
       </div>
     </div>
@@ -847,11 +739,578 @@
   </div>
 </div>
 
+  <!-- 🧊 Grid Row สำหรับสองกราฟ -->
+  <!-- ✅ Layout: 2 แถว แถวละ 2 การ์ด (ความสูงเท่ากันทั้งหมด 460px) -->
+<div class="row">
+  <!-- 🔴 Profiles with the most followers -->
+  <div class="col-md-6 d-flex">
+    <div class="card shadow-sm border-0 p-4 w-100" style="height: 460px;">
+      <h6 class="mb-3 fw-semibold">Profiles with the most followers</h6>
+      <div class="position-relative" style="width: 100%; height: 360px;">
+        <canvas id="followersBarChart"></canvas>
+        <div id="chartOverlays" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2;"></div>
+      </div>
+    </div>
+  </div>
 
-           <!-- Footer -->
-<footer class="content-footer footer bg-footer-theme mt-auto py-4 border-top" style="color: #FF6801;">
+  <div class="modal fade" id="followersPostsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content rounded">
+      <div class="modal-header">
+        <h5 class="modal-title fw-semibold">Posts by Selected Page</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="followersPostsModalBody"></div>
+    </div>
+  </div>
+</div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ✅ Custom Tooltip Style -->
+  <style>
+    canvas#followersBarChart {
+      z-index: 1;
+      position: relative;
+    }
+
+    #external-tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: 'Inter';
+      border-radius: 6px;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+  </style>
+
+<script>
+const chartData = JSON.parse(`{{ chart_data_json|safe }}`);
+const labels = chartData.map(p => p.name);
+const data = chartData.map(p => p.followers);
+const colors = chartData.map(p => p.color);
+
+const ctx = document.getElementById('followersBarChart').getContext('2d');
+
+const followersChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      data: data,
+      backgroundColor: colors,
+      borderRadius: 6,
+      barThickness: 20
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: { top: 20 }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        enabled: false,
+        external: function (context) {
+          let tooltipEl = document.getElementById('external-tooltip');
+          if (!tooltipEl) {
+            tooltipEl = document.createElement('div');
+            tooltipEl.id = 'external-tooltip';
+            document.body.appendChild(tooltipEl);
+          }
+
+          const tooltipModel = context.tooltip;
+          if (tooltipModel.opacity === 0) {
+            tooltipEl.style.opacity = 0;
+            return;
+          }
+
+          const point = tooltipModel.dataPoints[0];
+          const label = point.label;
+          const value = point.raw.toLocaleString() + ' followers';
+
+          tooltipEl.innerHTML = `<strong>${label}</strong><br>${value}`;
+          tooltipEl.style.opacity = 1;
+
+          const canvasRect = context.chart.canvas.getBoundingClientRect();
+          tooltipEl.style.left = canvasRect.left + window.scrollX + tooltipModel.caretX + 'px';
+          tooltipEl.style.top = canvasRect.top + window.scrollY + tooltipModel.caretY - 70 + 'px';
+        }
+      }
+    },
+    onClick: function (evt, elements) {
+      if (elements.length > 0) {
+        const index = elements[0].index;
+        const page = chartData[index];
+        const postsMap = JSON.parse(`{{ followers_posts_map|escapejs }}`);
+        const posts = postsMap[page.id] || [];
+
+        const html = posts.map(p => `
+          <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+            <div style="width: 90px; height: 90px; flex-shrink: 0; overflow: hidden;">
+              ${p.post_imgs?.[0] ? `<a href="https://www.facebook.com/${p.post_id}" target="_blank">
+                <img src="${p.post_imgs[0]}" style="height: 100%; width: 90px; object-fit: cover;" class="rounded-start" /></a>` :
+                `<div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>`}
+            </div>
+            <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center gap-2">
+                  ${p.page?.profile_pic ? `<img src="${p.page.profile_pic}" class="rounded-circle" style="width: 16px; height: 16px;">` : ''}
+                  <i class="bi bi-facebook text-primary"></i>
+                  <strong class="text-truncate">${p.page?.page_name || 'Unnamed'}</strong>
+                </div>
+                <div class="text-muted small" style="font-size: 0.65rem;">${p.post_timestamp}</div>
+              </div>
+              <div class="mt-1 text-dark" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis;font-size: 0.8rem;">
+                ${p.post_content || ''}
+              </div>
+              <div class="d-flex gap-2 text-muted align-items-center" style="font-size: 0.7rem;">
+                ${Object.entries(p.reactions || {}).map(([reaction, count]) => {
+                  const emoji = { 'ถูกใจ':'👍', 'รักเลย':'❤️', 'เศร้า':'😢', 'โกรธ':'😡', 'ว้าว':'😮', 'ฮ่าๆ':'😂', 'ห่วงใย':'🥰' }[reaction] || '';
+                  return `<span>${emoji} ${count}</span>`;
+                }).join('')}
+                <span>💬 ${p.comment_count || 0}</span>
+                <span>↪ ${p.share_count || 0}</span>
+                <span class="ms-auto fw-semibold text-dark">🔥 ${p.total_engagement || 0}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('followersPostsModalBody').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('followersPostsModal')).show();
+      }
+    },
+    animation: {
+      onComplete: function () {
+        const meta = followersChart.getDatasetMeta(0);
+        const overlays = document.getElementById('chartOverlays');
+        overlays.innerHTML = '';
+
+        meta.data.forEach((bar, i) => {
+          const x = bar.x;
+          const y = bar.y;
+          const page = chartData[i];
+          if (!page || !page.profile_pic || !page.platform) return;
+
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'absolute';
+          wrapper.style.left = (x - 18) + 'px';
+          wrapper.style.top = (y - 44) + 'px';
+          wrapper.style.width = '36px';
+          wrapper.style.height = '36px';
+
+          const img = document.createElement('img');
+          img.src = page.profile_pic;
+          img.style.width = '36px';
+          img.style.height = '36px';
+          img.style.borderRadius = '50%';
+          img.style.border = '2px solid white';
+          img.style.boxShadow = '0 1px 2px rgba(0,0,0,0.15)';
+          wrapper.appendChild(img);
+
+          const icon = document.createElement('img');
+          if (page.platform === "facebook")
+            icon.src = "{% static 'assets/img/icons/facebook-icon.webp' %}";
+          else if (page.platform === "tiktok")
+            icon.src = "{% static 'assets/img/icons/tiktoklogo.webp' %}";
+          else if (page.platform === "instagram")
+            icon.src = "{% static 'assets/img/icons/iglogo.png' %}";
+          else if (page.platform === "lemon8")
+            icon.src = "{% static 'assets/img/icons/lemon8logo.png' %}";
+          else if (page.platform === "youtube")
+            icon.src = "{% static 'assets/img/icons/youtubelogo.png' %}";
+
+          icon.style.width = '14px';
+          icon.style.height = '14px';
+          icon.style.position = 'absolute';
+          icon.style.bottom = '0';
+          icon.style.right = '0';
+          icon.style.borderRadius = '50%';
+          icon.style.border = '1px solid white';
+          icon.style.backgroundColor = 'white';
+          wrapper.appendChild(icon);
+
+          overlays.appendChild(wrapper);
+        });
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#2b2c40',
+          font: { size: 11 },
+          maxRotation: 0,
+          minRotation: 0
+        },
+        grid: { display: false }
+      },
+      y: {
+        beginAtZero: true,
+        suggestedMax: Math.max(...data) * 1.2,
+        ticks: {
+          color: '#adb5bd',
+          font: { size: 12 },
+          callback: value => value.toLocaleString()
+        },
+        grid: {
+          color: '#e9ecef',
+          drawBorder: false
+        }
+      }
+    }
+  }
+});
+</script>
+
+
+
+
+  <!-- 🟡 Share of Interaction -->
+  <div class="col-md-6 d-flex">
+    <div class="card shadow-sm border-0 p-4 w-100 d-flex flex-column">
+      <div>
+        <h6 class="mb-1 fw-semibold" style="font-size: 18px;">Share of Interaction</h6>
+        <p class="text-muted" style="font-size: 14px;">Which profile got the most interactions on their posts?</p>
+      </div>
+      <div id="shareInteractionChart" style="width: 100%; height: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+          <br>
+
+<!-- 🧊 Modal: Posts by Selected Page -->
+<div class="modal fade" id="interactionPostsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-semibold">Posts by Selected Page</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="interactionPostsContent">
+        <!-- Injected Posts -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Google Charts API -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+  google.charts.load("current", { packages: ["corechart"] });
+  google.charts.setOnLoadCallback(drawShareInteractionChart);
+
+  function drawShareInteractionChart() {
+    const interactionData = JSON.parse(`{{ interaction_data_json|safe }}`);
+    const postsMap = JSON.parse(`{{ followers_posts_map|escapejs }}`);
+    const chartDiv = document.getElementById('shareInteractionChart');
+
+    const dataArray = [['Page', 'Interactions', { role: 'tooltip', p: { html: true } }, { role: 'style' }]];
+    interactionData.forEach((p, i) => {
+      const tooltip = `<div style='padding:6px 8px'><b>${p.name}</b><br>${p.interactions} interactions</div>`;
+      dataArray.push([p.name, p.interactions, tooltip, `color: ${p.color}`]);
+    });
+
+    const data = google.visualization.arrayToDataTable(dataArray);
+
+    const options = {
+      pieHole: 0.65,
+      tooltip: { isHtml: true },
+      legend: { position: 'labeled', textStyle: { fontSize: 13, color: '#333' } },
+      pieSliceText: 'none',
+      colors: interactionData.map(p => p.color),
+      chartArea: { width: '85%', height: '90%' },
+      fontName: 'Inter',
+      animation: { duration: 500, easing: 'out' },
+      backgroundColor: 'transparent'
+    };
+
+    const chart = new google.visualization.PieChart(chartDiv);
+    chart.draw(data, options);
+
+    // Click Event for Slice
+    google.visualization.events.addListener(chart, 'select', () => {
+      const selectedItem = chart.getSelection()[0];
+      if (selectedItem) {
+        const pageName = data.getValue(selectedItem.row, 0);
+        const pageObj = interactionData.find(p => p.name === pageName);
+        const pageId = pageObj ? pageObj.id || null : null;
+        const posts = postsMap[pageId] || [];
+
+        document.querySelector('#interactionPostsModal .modal-title').innerText = `Posts by ${pageName}`;
+
+        const html = posts.map(p => `
+          <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+            <div style="width: 90px; height: 90px; flex-shrink: 0; overflow: hidden;">
+              ${p.post_imgs?.[0] ? `<a href="https://www.facebook.com/${p.post_id}" target="_blank">
+              <img src="${p.post_imgs[0]}" style="height: 100%; width: 90px; object-fit: cover;" class="rounded-start" /></a>` :
+              `<div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>`}
+            </div>
+            <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex align-items-center gap-2">
+                  ${p.page?.profile_pic ? `<img src="${p.page.profile_pic}" class="rounded-circle" style="width: 16px; height: 16px;">` : ''}
+                  <i class="bi bi-facebook text-primary"></i>
+                  <strong class="text-truncate">${p.page?.page_name || 'Unnamed'}</strong>
+                </div>
+                <div class="text-muted small" style="font-size: 0.65rem;">${p.post_timestamp}</div>
+              </div>
+              <div class="mt-1 text-dark" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis;font-size: 0.8rem;">
+                ${p.post_content || ''}
+              </div>
+              <div class="d-flex gap-2 text-muted align-items-center" style="font-size: 0.7rem;">
+                ${Object.entries(p.reactions || {}).map(([r, c]) => {
+                  const emoji = { 'ถูกใจ': '👍', 'รักเลย': '❤️', 'เศร้า': '😢', 'โกรธ': '😡', 'ว้าว': '😮', 'ฮ่าๆ': '😂', 'ห่วงใย': '🥰' }[r] || '';
+                  return `<span>${emoji} ${c}</span>`;
+                }).join('')}
+                <span>💬 ${p.comment_count || 0}</span>
+                <span>↪ ${p.share_count || 0}</span>
+                <span class="ms-auto fw-semibold text-dark">🔥 ${p.total_engagement || 0}</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('interactionPostsContent').innerHTML = html;
+        new bootstrap.Modal(document.getElementById('interactionPostsModal')).show();
+      }
+    });
+
+    window.addEventListener('resize', drawShareInteractionChart);
+  }
+</script>
+
+
+  <!-- 📊 Number of posts by days & Best Times To Post -->
+  <div class="row">
+    <!-- 📊 Number of posts by days -->
+    <div class="col-md-6 d-flex">
+      <div class="card shadow-sm border-0 p-4 w-100">
+        <h6 class="mb-3">Number of posts by days</h6>
+        <canvas id="postsByDayChart" style="width:100%; height:100%;"></canvas>
+      </div>
+    </div>
+   <!-- 🧠 Popup Modal -->
+  <div class="modal fade" id="popupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Posts in Selected By Day</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="popupContent"></div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const postsByDayChart = new Chart(document.getElementById("postsByDayChart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: {{ bar_day_labels|safe }},
+        datasets: [{
+          label: "Number of posts",
+          data: {{ bar_day_values|safe }},
+          backgroundColor: {{ bar_day_colors|safe }},
+          borderRadius: 6,
+          barThickness: 28
+        }]
+      },
+      options: {
+        onClick: function (e, elements) {
+          if (elements.length > 0) {
+            const dayIndex = elements[0].index;
+            const postsMap = JSON.parse('{{ posts_by_day_json|escapejs }}');
+            const posts = postsMap[dayIndex] || [];
+
+            document.querySelector('#popupModal .modal-title').innerText = 'Posts in Selected By Day';
+
+            const html = posts.map(p => `
+              <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+                <div style="width: 90px; height: 90px; flex-shrink: 0; overflow: hidden;">
+                  ${p.post_imgs?.[0] ? `<a href="https://www.facebook.com/${p.post_id}" target="_blank"><img src="${p.post_imgs[0]}" class="rounded-start" style="height: 100%; width: 90px; object-fit: cover;" /></a>` : `<div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>`}
+                </div>
+                <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-2">
+                      ${p.profile_pic ? `<img src="${p.profile_pic}" class="rounded-circle" style="width: 16px; height: 16px;">` : ''}
+                      <i class="bi bi-facebook text-primary"></i>
+                      <strong class="text-truncate">${p.page_name}</strong>
+                    </div>
+                    <div class="text-muted small" style="font-size: 0.65rem;">${p.post_timestamp}</div>
+                  </div>
+                  <div class="mt-1 text-dark" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis;font-size: 0.8rem;">
+                    ${p.post_content}
+                  </div>
+                  <div class="d-flex gap-2 text-muted align-items-center" style="font-size: 0.7rem;">
+                    ${Object.entries(p.reactions || {}).map(([r, c]) => {
+                      const emoji = { 'ถูกใจ': '👍', 'รักเลย': '❤️', 'เศร้า': '😢', 'โกรธ': '😡', 'ว้าว': '😮', 'ฮ่าๆ': '😂', 'ห่วงใย': '🥰' }[r] || '';
+                      return `<span>${emoji} ${c}</span>`;
+                    }).join('')}
+                    <span>💬 ${p.comment_count || 0}</span>
+                    <span>↪ ${p.share_count || 0}</span>
+                    <span class="ms-auto fw-semibold text-dark">🔥 ${p.total_engagement}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+
+            document.getElementById('popupContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('popupModal')).show();
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 } },
+          x: { grid: { display: false } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  });
+  </script>
+
+
+  <!-- 🕒 Best Times To Post -->
+    <div class="col-md-6 d-flex">
+      <div class="card shadow-sm border-0 p-4 w-100">
+        <h6 class="mb-3">Best Times To Post</h6>
+        <canvas id="bestTimesChart" style="width:100%; height:100%;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📊 Popup Template -->
+  <div class="modal fade" id="popupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Posts in Selected Time Slot</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="popupContent">
+          <!-- Content Injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    function getColorByPostCount(count) {
+      const max = 30;
+      const ratio = Math.min(count / max, 1);
+      const hue = (1 - ratio) * 240; // 240 = น้ำเงิน → 0 = แดง
+      return `hsl(${hue}, 70%, 60%)`;
+    }
+
+    const bubbles = JSON.parse('{{ bubble_data|escapejs }}');
+    const postMap = JSON.parse('{{ posts_grouped_json|escapejs }}');
+
+    const ctx = document.getElementById("bestTimesChart").getContext("2d");
+    const chart = new Chart(ctx, {
+      type: 'bubble',
+      data: {
+        datasets: bubbles.map(b => ({
+          data: [{
+            x: b.x, y: b.y, r: b.r,
+            count: b.count,
+            likes: b.likes,
+            comments: b.comments,
+            shares: b.shares,
+            key: b.key,
+            label: b.tooltip_label
+          }],
+          backgroundColor: getColorByPostCount(b.count),
+          hoverBackgroundColor: getColorByPostCount(b.count)
+        }))
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: ctx => [
+                ctx.raw.label,
+                `${ctx.raw.count} Number of posts`,
+                `${ctx.raw.likes} Likes, ${ctx.raw.comments} Comments, ${ctx.raw.shares} Shares`
+              ]
+            }
+          },
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            min: -0.5, max: 6.5,
+            ticks: { callback: v => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][v] }
+          },
+          y: { min: 0, max: 24, ticks: { stepSize: 2 } }
+        },
+        onClick: (e, elements) => {
+          if (elements.length) {
+            const key = chart.data.datasets[elements[0].datasetIndex].data[0].key;
+            const posts = postMap[key] || [];
+
+            document.querySelector('#popupModal .modal-title').innerText = 'Posts in Selected Time Slot';
+
+
+            const html = posts.map(p => `
+              <div class="d-flex border rounded mb-2 small overflow-hidden" style="height: 90px;">
+                <div style="width: 90px; height: 90px; flex-shrink: 0; overflow: hidden;">
+                  ${p.post_imgs?.[0] ? `<a href="https://www.facebook.com/${p.post_id}" target="_blank">
+                    <img src="${p.post_imgs[0]}" style="height: 100%; width: 90px; object-fit: cover;" class="rounded-start" /></a>` :
+                    `<div style="height: 100%; width: 90px; background-color: #f8f9fa;"></div>`}
+                </div>
+                <div class="flex-grow-1 px-2 py-1 d-flex flex-column justify-content-between" style="min-width: 0;">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-2">
+                      ${p.page?.profile_pic ? `<img src="${p.page.profile_pic}" class="rounded-circle" style="width: 16px; height: 16px;">` : ''}
+                      <i class="bi bi-facebook text-primary"></i>
+                      <strong class="text-truncate">${p.page?.page_name || 'Unnamed'}</strong>
+                    </div>
+                    <div class="text-muted small" style="font-size: 0.65rem;">${p.post_timestamp}</div>
+                  </div>
+                  <div class="mt-1 text-dark" style="display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;overflow: hidden;text-overflow: ellipsis;font-size: 0.8rem;">
+                    ${p.post_content || ''}
+                  </div>
+                  <div class="d-flex gap-2 text-muted align-items-center" style="font-size: 0.7rem;">
+                    ${Object.entries(p.reactions || {}).map(([reaction, count]) => {
+                      const emoji = { 'ถูกใจ':'👍', 'รักเลย':'❤️', 'เศร้า':'😢', 'โกรธ':'😡', 'ว้าว':'😮', 'ฮ่าๆ':'😂', 'ห่วงใย':'🥰' }[reaction] || '';
+                      return `<span>${emoji} ${count}</span>`;
+                    }).join('')}
+                    <span>💬 ${p.comment_count || 0}</span>
+                    <span>↪ ${p.share_count || 0}</span>
+                    <span class="ms-auto fw-semibold text-dark">🔥 ${p.total_engagement || 0}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+
+            document.getElementById('popupContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('popupModal')).show();
+          }
+        }
+      }
+    });
+  });
+  </script>
+
+
+            <!-- Footer -->
+<footer class="content-footer footer bg-footer-theme mt-auto py-4 border-top">
   <div class="container-xxl d-flex flex-column flex-md-row align-items-center justify-content-between">
-    <div class="text-muted mb-2 mb-md-0">
+    <div class="text-muted mb-2 mb-md-0" style="color: #FF6801;">
       © <script>document.write(new Date().getFullYear());</script> Growfox Marketing Data Center. All rights reserved.
     </div>
     <div class="footer-links d-flex flex-wrap gap-3">
@@ -860,7 +1319,8 @@
       <a href="/support" class="footer-link" style="color: #FF6801 !important;">F.A.Q.</a>
     </div>
   </div>
-</footer>            <!-- / Footer -->
+</footer>
+            <!-- / Footer -->
 
             <div class="content-backdrop fade"></div>
           </div>
