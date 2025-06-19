@@ -1,9 +1,10 @@
 import json
 import re
 import asyncio
+import time
 from pathlib import Path
 from pprint import pprint
-from typing import Any, Optional, List, Tuple
+from typing import Any, Optional, List, Tuple, Coroutine
 
 from playwright.async_api import Playwright, async_playwright, Browser, Page, BrowserContext
 from datetime import datetime
@@ -127,7 +128,7 @@ class FBPostScraperAsync:
             username = (await profile_link.inner_text()).strip()
             return username
         except Exception as e:
-            print(f"[confirm_login] failed to confirm login: {e}")
+            print(f"[confirm_login] failed to confirm login please check cookie")
             return None
 
     def _parse_thai_timestamp(self, text: str) -> datetime:
@@ -158,6 +159,24 @@ class FBPostScraperAsync:
             return datetime(year, month, day, hour, minute)
         except Exception:
             return datetime(1970, 1, 1)
+
+    def _parse_thai_number(self, text: str) -> int:
+        """Convert a Thai-formatted count (e.g. '1.2 พัน', '5 หมื่น') to an integer."""
+        import re
+        units = {'พัน': 10**3, 'หมื่น': 10**4, 'แสน': 10**5, 'ล้าน': 10**6}
+        t = text.strip()
+        # Check for known units
+        for unit, mul in units.items():
+            if t.endswith(unit):
+                num_str = t[:-len(unit)].strip()
+                try:
+                    value = float(num_str)
+                except ValueError:
+                    value = 1.0
+                return int(value * mul)
+        # Fallback: strip non-digits and parse
+        digits = re.sub(r'[^\d]', '', t)
+        return int(digits) if digits else 0
 
     async def _get_post(self, page: Page, cutoff_dt: datetime, max_posts: int, seen_ids: set) -> Tuple[List[Tuple[str, datetime]], bool]:
         batch: List[Tuple[str, datetime]] = []
@@ -224,21 +243,6 @@ class FBPostScraperAsync:
 
         return batch, older_than_cutoff
 
-    def _parse_thai_number(self, text: str) -> int:
-        text = text.strip().replace(",", "")
-        if "พัน" in text:
-            return int(float(re.search(r"\d+(?:\.\d+)?", text).group()) * 1000)
-        elif "หมื่น" in text:
-            return int(float(re.search(r"\d+(?:\.\d+)?", text).group()) * 10000)
-        elif "แสน" in text:
-            return int(float(re.search(r"\d+(?:\.\d+)?", text).group()) * 100000)
-        elif "ล้าน" in text:
-            return int(float(re.search(r"\d+(?:\.\d+)?", text).group()) * 1000000)
-        else:
-            # fallback: ตัดทุกอย่างที่ไม่ใช่เลข
-            digits = re.sub(r"[^\d]", "", text)
-            return int(digits) if digits else 0
-
     async def _get_post_detail(self, context: BrowserContext, post_url: str) -> Optional[dict]:
         """
         We open a *new tab/page* for each post order to parallelize.
@@ -249,9 +253,11 @@ class FBPostScraperAsync:
             await detail_page.goto(post_url)
 
             # Wait for the light‐mode container
-            light_container = detail_page.locator('div.__fb-light-mode.x1n2onr6.x1vjfegm').first
+            await detail_page.wait_for_selector('.__fb-light-mode.x1n2onr6.x1vjfegm', timeout=10000)
+            await detail_page.locator('.__fb-light-mode.x1n2onr6.x1vjfegm').first.scroll_into_view_if_needed()
+            light_container = detail_page.locator('.__fb-light-mode.x1n2onr6.x1vjfegm').first
             try:
-                await light_container.wait_for(timeout=5000)
+                await light_container.wait_for(timeout=10000)
             except Exception as e:
                 print(f"[get_post_detail] Timeout waiting for light_container on {post_url}: {e}")
                 await detail_page.close()
@@ -263,7 +269,7 @@ class FBPostScraperAsync:
 
             tooltip_span = detail_page.locator('div[role="tooltip"] span.x193iq5w').first
             try:
-                await tooltip_span.wait_for(timeout=5000)
+                await tooltip_span.wait_for(timeout=10000)
             except Exception as e:
                 print(f"[get_post_detail] Timeout waiting for tooltip_span on {post_url}: {e}")
                 await detail_page.close()
@@ -274,11 +280,17 @@ class FBPostScraperAsync:
             # Extract story_message
             story_locator = light_container.locator('div[data-ad-rendering-role="story_message"]').first
             try:
-                await story_locator.wait_for(timeout=5000)
+                await story_locator.wait_for(timeout=10000)
             except Exception as e:
                 print(f"[get_post_detail] Timeout waiting for story_locator on {post_url}: {e}")
                 await detail_page.close()
                 return None
+
+            # Expand "ดูเพิ่มเติม" if present to reveal full content
+            more_btn = story_locator.locator('div[role="button"]', has_text="ดูเพิ่มเติม")
+            if await more_btn.count():
+                await more_btn.first.click()
+                await detail_page.wait_for_timeout(500)
             post_content = (await story_locator.inner_text()).strip()
 
             # Collect image URLs from img tags inside <a href*="/photo/">
@@ -289,41 +301,92 @@ class FBPostScraperAsync:
                 if src_val:
                     post_imgs.append(src_val)
 
-            # Extract reactions
-            reactions = {}
-            reaction_spans = await light_container.locator('[role="toolbar"] [aria-label]').all()
-            for span in reaction_spans:
-                label = await span.get_attribute("aria-label")
-                if label and ":" in label:
-                    reaction_type, count_text = label.split(":", 1)
-                    count = self._parse_thai_number(count_text)
-                    reactions[reaction_type.strip()] = count
-
             # Comment count
             comment_count = 0
-            comments = []
             try:
-                comment_element = light_container.locator('span', has_text='ความคิดเห็น').first
-                comment_text = (await comment_element.text_content()).strip()
-                comment_count = int(re.search(r"(\d+)", comment_text).group(1))
-
-                if comment_count > 0:
-                    comments = await self._get_post_comments(detail_page)
-            except:
-                pass
+                comment_btn_locator = light_container.locator(
+                    'div[role="button"]', has_text='ความคิดเห็น'
+                )
+                if await comment_btn_locator.count():
+                    comment_btn = comment_btn_locator.first
+                    await comment_btn.wait_for(state='visible', timeout=10000)
+                    # Prefer aria-label for the count
+                    aria_label = await comment_btn.get_attribute('aria-label')
+                    if aria_label:
+                        match = re.search(r'([\d\.,]+\s*(?:พัน|หมื่น|แสน|ล้าน)?)', aria_label)
+                    else:
+                        text = (await comment_btn.text_content()).strip()
+                        match = re.search(r'([\d\.,]+\s*(?:พัน|หมื่น|แสน|ล้าน)?)', text)
+                    if match:
+                        comment_count = self._parse_thai_number(match.group(1))
+            except Exception:
+                comment_count = 0
 
             # Share count
             share_count = 0
             try:
-                share_element = light_container.locator('span', has_text=' แชร์').first
-                share_text = (await share_element.text_content()).strip()
-                share_count = int(re.search(r"(\d+)", share_text).group(1))
-            except:
-                pass
+                share_btn_locator = light_container.locator(
+                    'div[role="button"]', has_text='แชร์'
+                )
+                if await share_btn_locator.count():
+                    share_btn = share_btn_locator.first
+                    await share_btn.wait_for(state='visible', timeout=10000)
+                    # Prefer aria-label for the count
+                    aria_label = await share_btn.get_attribute('aria-label')
+                    if aria_label:
+                        match = re.search(r'([\d\.,]+\s*(?:พัน|หมื่น|แสน|ล้าน)?)', aria_label)
+                    else:
+                        text = (await share_btn.text_content()).strip()
+                        match = re.search(r'([\d\.,]+\s*(?:พัน|หมื่น|แสน|ล้าน)?)', text)
+                    if match:
+                        share_count = self._parse_thai_number(match.group(1))
+            except Exception:
+                share_count = 0
 
             # Extract just the ID portion from the URL
             raw_id = post_url.split('/posts/')[1]
             post_id = raw_id.split('?')[0]
+
+            reactions = {}
+            try:
+                # 1) Wait for the reactions bar to show up
+                await detail_page.wait_for_selector('.__fb-light-mode.x1n2onr6.x1vjfegm', timeout=10_000)
+
+                # 2) Click the “ความรู้สึกทั้งหมด” button by text
+                #    (scoped under that same container so we don’t accidentally hit something else)
+                await detail_page.locator(
+                    '.__fb-light-mode.x1n2onr6.x1vjfegm >> text="ความรู้สึกทั้งหมด"'
+                ).first.click()
+
+                # 3) Wait for the full-reaction overlay and scope to it
+                overlay = detail_page.locator('.__fb-light-mode.x1n2onr6.xzkaem6').first
+                await overlay.wait_for(state='visible', timeout=10_000)
+
+                # Wait for the specific element inside the overlay
+                target_elem = overlay.locator('.xf7dkkf.xv54qhq').first
+                await target_elem.wait_for(state='visible', timeout=10_000)
+
+                # Extract each reaction (except "ทั้งหมด")
+                reaction_tabs = overlay.locator('div[role="tab"]')
+                count_tabs = await reaction_tabs.count()
+                for i in range(count_tabs):
+                    tab = reaction_tabs.nth(i)
+                    # Derive reaction type from aria-label, e.g. 'ถูกใจ', 'รักเลย'
+                    aria = await tab.get_attribute('aria-label')
+                    label_match = None
+                    if aria:
+                        m = re.search(r'แสดง\s[\d,\.]+\sคนที่แสดงความรู้สึก\s“?\"?([^\"”]+)\"?\"?', aria)
+                        if m:
+                            label_match = m.group(1).strip()
+                    if not label_match or label_match == 'ทั้งหมด':
+                        continue
+                    label = label_match
+                    # Get the count from the span inside the tab
+                    count_text = (await tab.locator('span.x193iq5w').first.text_content()).strip()
+                    reactions[label] = self._parse_thai_number(count_text)
+
+            except Exception as exc:
+                print(f"[get_post_reactions] failed: {exc}")
 
             # print(f"[get_post_detail] Successfully fetched details for {post_id}")
             await detail_page.close()
@@ -338,7 +401,7 @@ class FBPostScraperAsync:
                 "reactions": reactions,
                 "comment_count": comment_count,
                 "share_count": share_count,
-                "comments": comments,
+                # "comments": comments,
             }
 
         except Exception as e:
@@ -349,85 +412,114 @@ class FBPostScraperAsync:
                 pass
             return None
 
-    async def _get_post_comments(self, page: Page) -> list:
-        comments = []
-        try:
-            # Wait for and click the comments sort button
-            await page.wait_for_selector('div.x6s0dn4.x78zum5.xdj266r.x14z9mp.xat24cr.x1lziwak.xe0p6wg', timeout=5000)
-            await page.click('div.x6s0dn4.x78zum5.xdj266r.x14z9mp.xat24cr.x1lziwak.xe0p6wg')
-            # Click 'ความคิดเห็นทั้งหมด'
-            await page.wait_for_selector('div[role="menuitem"] >> text="ความคิดเห็นทั้งหมด"', timeout=5000)
-            await page.click('div[role="menuitem"] >> text="ความคิดเห็นทั้งหมด"')
-            # Scroll the comments container until no new content appears
-            container_selector = (
-                "div.x14nfmen.x1s85apg.x5yr21d.xds687c.xg01cxk"
-                ".x10l6tqk.x13vifvy.x1wsgiic.x19991ni.xwji4o3"
-                ".x1kky2od.x1sd63oq"
-            )
-            container = page.locator(container_selector).first
-            await container.wait_for(timeout=5000)
-            # Use the container's scrollHeight to detect new loads
-            last_height = await container.evaluate("el => el.scrollHeight")
-            while True:
-                await container.evaluate("el => el.scrollTop = el.scrollHeight")
-                await page.wait_for_timeout(1000)
-                new_height = await container.evaluate("el => el.scrollHeight")
-                if new_height == last_height:
-                    break
-                last_height = new_height
-        except Exception as e:
-            print(f"[get_post_comments] Failed to open comments menu: {e}")
-            return comments
-
-        # Extract comment data
-        comment_divs = await page.locator('div.x18xomjl.xbcz3fp').all()
-        for div in comment_divs:
-            try:
-                image_element = div.locator('svg image').first
-                profile_img = await image_element.get_attribute('xlink:href')
-
-                # Extract commenter name
-                profile_name = (await div.locator('span.x6zurak').first.text_content()).strip()
-                # Extract profile URL from the same anchor
-                profile_url = (await div.locator('span.xjp7ctv a').first.get_attribute('href')).split('?')[0]
-
-                # Extract full comment text from the container
-                comment_container = div.locator('div.x1lliihq.xjkvuk6.x1iorvi4').first
-                comment_text = (await comment_container.inner_text()).strip()
-
-                # Hover to reveal the absolute timestamp tooltip
-                time_link = div.locator('a[href*="?comment_id="]').last
-                await time_link.hover()
-                # Wait briefly for the tooltip to render
-                await page.wait_for_timeout(500)
-                # The tooltip span uses the same “x6zurak…” classes as elsewhere
-                tooltip_elem = page.locator(
-                    'span.x6zurak.x18bv5gf.x184q3qc.xqxll94.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x193iq5w.xeuugli.x13faqbe.x1vvkbs.x1lliihq.xzsf02u.xlh3980.xvmahel.x1x9mg3.xo1l8bm').last
-                time_stamp_text = (await tooltip_elem.text_content()).strip()
-
-                # Convert Thai timestamp string to a datetime object
-                time_stamp_dt = self._parse_thai_timestamp(time_stamp_text)
-
-                comments.append({
-                    "user_name": profile_name,
-                    "profile_url": profile_url,
-                    "profile_img": profile_img,
-                    "comment_text": comment_text,
-                    "time_stamp_text": time_stamp_text,
-                    "time_stamp_dt": time_stamp_dt,
-                })
-            except Exception as e:
-                print(f"[get_post_comments] Error extracting a comment: {e}")
-                continue
-
-        return comments
+    # async def _get_post_comments(self, page: Page) -> list:
+    #     comments = []
+    #     try:
+    #         # Wait for and click the comments sort button
+    #         await page.wait_for_selector('div.x6s0dn4.x78zum5.xdj266r.x14z9mp.xat24cr.x1lziwak.xe0p6wg', timeout=10000)
+    #         await page.click('div.x6s0dn4.x78zum5.xdj266r.x14z9mp.xat24cr.x1lziwak.xe0p6wg')
+    #         # Open the full comments dialog
+    #         await page.click('div[role="menuitem"] >> text="ความคิดเห็นทั้งหมด"')
+    #         # 1) Wait for the comments dialog Locator to appear
+    #         dialog = page.locator('div[role="dialog"]').first
+    #         await dialog.wait_for(timeout=10000)
+    #         # Find the actual scrollable element inside the dialog via computed styles
+    #         dialog_handle = await dialog.element_handle()
+    #         scrollable_handle = await page.evaluate_handle(
+    #             """dialog => {
+    #                 const divs = Array.from(dialog.querySelectorAll('div'));
+    #                 return divs.find(el => {
+    #                     const style = window.getComputedStyle(el);
+    #                     return style.overflowY === 'auto' || style.overflowY === 'scroll';
+    #                 }) || dialog;
+    #             }""",
+    #             dialog_handle
+    #         )
+    #         # Scroll until no new comments load
+    #         prev_count = 0
+    #         while True:
+    #             # Count loaded top-level comments
+    #             curr_count = await page.locator('div[role="article"][aria-label^="ความคิดเห็นจาก"]').count()
+    #             if curr_count > prev_count:
+    #                 prev_count = curr_count
+    #                 await scrollable_handle.evaluate("el => el.scrollTo(0, el.scrollHeight)")
+    #                 await page.wait_for_timeout(1000)
+    #             else:
+    #                 break
+    #     except Exception as e:
+    #         print(f"[get_post_comments] Failed to open comments menu: {e}")
+    #         return comments
+    #
+    #     # Wait for at least one top-level comment to load
+    #     try:
+    #         await page.wait_for_selector('div[role="article"][aria-label^="ความคิดเห็นจาก"]', timeout=10000)
+    #     except Exception:
+    #         # No top-level comments present; exit gracefully
+    #         return []
+    #
+    #     # Select only main comment containers (exclude replies)
+    #     comment_divs = await page.locator('div[role="article"][aria-label^="ความคิดเห็นจาก"]').all()
+    #     for div in comment_divs:
+    #         try:
+    #             image_element = div.locator('svg image').first
+    #             profile_img = await image_element.get_attribute('xlink:href')
+    #
+    #             # Extract commenter name and profile URL from the visible name link
+    #             visible_links = div.locator('a[aria-hidden="false"]')
+    #             if await visible_links.count():
+    #                 name_link = visible_links.first
+    #             else:
+    #                 name_link = div.locator('a').first
+    #             await name_link.wait_for(timeout=5000)
+    #             profile_name = (await name_link.text_content()).strip()
+    #             href = await name_link.get_attribute('href')
+    #             profile_url = href.split('?')[0] if href else None
+    #
+    #             # Extract just the comment message
+    #             # Look for the nested div with dir="auto" inside the comment body
+    #             msg_locator = div.locator('div.x1lliihq.xjkvuk6.x1iorvi4 div[dir="auto"]').first
+    #             if await msg_locator.count():
+    #                 comment_text = (await msg_locator.inner_text()).strip()
+    #             else:
+    #                 comment_text = ''
+    #
+    #             # Hover to reveal timestamp tooltip
+    #             time_link = div.locator('a[href*="?comment_id="]').last
+    #             try:
+    #                 await time_link.hover()
+    #                 await page.wait_for_selector('div[role="tooltip"]', timeout=5000)
+    #                 tooltip = page.locator('div[role="tooltip"]').first
+    #                 time_stamp_text = (await tooltip.inner_text()).strip()
+    #                 time_stamp_dt = self._parse_thai_timestamp(time_stamp_text)
+    #             except:
+    #                 time_stamp_text = None
+    #                 time_stamp_dt = None
+    #
+    #             comments.append({
+    #                 "user_name": profile_name,
+    #                 "profile_url": profile_url,
+    #                 "profile_img": profile_img,
+    #                 "comment_text": comment_text,
+    #                 "time_stamp_text": time_stamp_text,
+    #                 "time_stamp_dt": time_stamp_dt,
+    #             })
+    #         except Exception as e:
+    #             print(f"[get_post_comments] Error extracting a comment: {e}")
+    #             print(page.url)
+    #             continue
+    #
+    #     return comments
 
     async def run(self) -> None:
         print("Starting scraper...")
         async with async_playwright() as pw:
-            self.browser = await pw.chromium.launch(headless=self.headless)
+            launch_args = {"headless": self.headless}
+            self.browser = await pw.chromium.launch(**launch_args)
             print("Browser launched.")
-            self.context = await self.browser.new_context()
+            context_args = {
+                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+            }
+            self.context = await self.browser.new_context(**context_args)
             cookie_list = await self._process_cookie()
             await self.context.add_cookies(cookie_list)
 
@@ -452,7 +544,8 @@ class FBPostScraperAsync:
                         "div.x9f619.x1n2onr6.x1ja2u2z.x78zum5.xdt5ytf.x2lah0s.x193iq5w.x1cy8zhl.xexx8yu"
                     ).first
                     await title_container.wait_for(timeout=10000)
-                    page_name = (await title_container.locator("h1.html-h1").text_content()).strip()
+                    raw_page_name = await title_container.locator("h1.html-h1").text_content()
+                    page_name = raw_page_name.split("\u00A0")[0].strip()
                     print(f"Page name: {page_name}")
                     print(f"Cutoff datetime: {self.cutoff_dt}")
                 except Exception as e:
@@ -522,12 +615,13 @@ class FBPostScraperAsync:
             # ---------------------
             await self.context.close()
             await self.browser.close()
-            return all_results
         print("Scraper finished.")
+
+        return all_results
 
     def start(self):
         """Synchronous entry point to launch the async run."""
-        return asyncio.run(self.run())  # ✅ ใส่ return เพื่อส่งค่ากลับจริง
+        return asyncio.run(self.run())
 
 def run_fb_post_scraper(url: str, cookies_path: str = 'cookie.json', cutoff_dt: datetime = None):
         scraper = FBPostScraperAsync(
@@ -539,13 +633,12 @@ def run_fb_post_scraper(url: str, cookies_path: str = 'cookie.json', cutoff_dt: 
         )
         return scraper.start()
 
-
 if __name__ == "__main__":
     scraper = FBPostScraperAsync(
         cookie_file="cookie.json",
-        headless=False,
-        page_url="https://www.facebook.com/skooldio",
-        cutoff_dt=datetime(2025, 6, 1, 0, 0),
+        headless=True,
+        page_url="https://www.facebook.com/hartbeatfanpage",
+        cutoff_dt=datetime(2025, 5, 1, 0, 0),
         # cutoff_dt= None,
         batch_size = 10
     )
